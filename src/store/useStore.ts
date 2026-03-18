@@ -244,7 +244,7 @@ export const useStore = create<AppState>()(
         try {
           const guestId = getGuestId();
           const { data, error } = await supabase
-            .from('User_History')
+            .from('user_history')
             .select('*')
             .eq('guest_id', guestId);
 
@@ -283,7 +283,7 @@ export const useStore = create<AppState>()(
         try {
           const guestId = getGuestId();
           const { error } = await supabase
-            .from('User_History')
+            .from('user_history')
             .upsert({
               guest_id: guestId,
               date: entry.date,

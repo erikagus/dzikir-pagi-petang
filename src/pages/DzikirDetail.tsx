@@ -31,10 +31,13 @@ export function DzikirDetail() {
     if (!isTargetReached) {
       const isFinalTap = currentProgress + 1 === currentItem.target;
       incrementProgress(currentItem.id, currentItem.target);
+      
       if (navigator.vibrate) {
         if (isFinalTap) {
+          // Double vibration for completion
           navigator.vibrate([100, 50, 100]);
         } else {
+          // Single vibration for normal tap
           navigator.vibrate(50);
         }
       }
@@ -45,8 +48,13 @@ export function DzikirDetail() {
     if (currentSession.currentIndex < filteredDzikir.length - 1) {
       nextDzikir();
     } else {
-      completeSession();
-      navigate('/history');
+      // Check if all dzikir are completed
+      const allCompleted = filteredDzikir.every(d => (currentSession.progress[d.id] || 0) >= d.target);
+      
+      if (allCompleted) {
+        completeSession();
+        navigate('/history');
+      }
     }
   };
 
@@ -81,14 +89,14 @@ export function DzikirDetail() {
               <span className="text-sm font-bold">{currentItem.target} kali</span>
             </div>
           </div>
-          <h3 className="font-arabic text-[#171D1A] text-2xl leading-[2.5rem] text-center font-bold" dir="rtl">
+          <h3 className="font-arabic text-[#171D1A] text-2xl leading-[3.5rem] text-right font-bold tracking-wider" dir="rtl">
             {currentItem.arabic}
           </h3>
           <div className="space-y-4">
-            <p className="text-[#006C4C] font-medium text-center text-sm italic leading-relaxed">
+            <p className="text-[#006C4C] font-medium text-left text-sm italic leading-relaxed">
               {currentItem.transliteration}
             </p>
-            <p className="text-[#404944] text-xs leading-6 text-center tracking-wide">
+            <p className="text-[#404944] text-xs leading-6 text-left tracking-wide">
               {currentItem.translation}
             </p>
           </div>
