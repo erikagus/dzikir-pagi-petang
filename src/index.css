@@ -1,13 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-arabic: "Amiri", serif;
-  --font-serif: "Playfair Display", serif;
-  --font-sans: "Inter", sans-serif;
-}
-
-body {
-  @apply bg-[#F5FBF7] text-[#171D1A] dark:bg-[#0D231A] dark:text-white transition-colors duration-300;
-  font-family: "Inter", sans-serif;
 }
