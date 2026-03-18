@@ -8,7 +8,7 @@ import { useStore } from './store/useStore';
 
 function Layout() {
   return (
-    <div className="text-[#171D1A] font-sans min-h-screen flex flex-col antialiased bg-[#F5FBF7] max-w-md mx-auto relative shadow-xl">
+    <div className="text-gray-800 font-sans min-h-screen flex flex-col antialiased bg-white max-w-md mx-auto relative shadow-2xl overflow-hidden">
       <Outlet />
       <BottomNav />
     </div>

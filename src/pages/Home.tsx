@@ -1,16 +1,93 @@
 import { Link } from 'react-router';
 import { Flame, Sunrise, Sunset, Bell, Infinity, Trophy, Play, Menu, CheckCircle2 } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
+import { dzikirData } from '../data/dzikir';
 
 export function Home() {
-  const { currentStreak, totalDzikir, lastCompleted, getHistoryForDate } = useStore();
-
-  const formattedLastCompleted = lastCompleted 
-    ? format(new Date(lastCompleted), "dd MMM, HH:mm")
-    : "Belum ada";
+  const { totalDzikir, history, dailyProgress, getHistoryForDate } = useStore();
 
   const todayHistory = getHistoryForDate(new Date());
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+
+  // Calculate Streak and Missed Days
+  let streak = 0;
+  let missedDays = 0;
+  let currentDate = new Date();
+  
+  const currentTodayStr = format(currentDate, 'yyyy-MM-dd');
+  const todayEntry = history.find(h => h.date === currentTodayStr);
+  const todayCompleted = todayEntry?.pagiCompleted && todayEntry?.petangCompleted;
+  
+  if (todayCompleted) {
+    streak++;
+  }
+  
+  currentDate = subDays(currentDate, 1);
+  let checkingStreak = true;
+  
+  while (true) {
+    const dateStr = format(currentDate, 'yyyy-MM-dd');
+    const entry = history.find(h => h.date === dateStr);
+    const isCompleted = entry?.pagiCompleted && entry?.petangCompleted;
+    
+    if (isCompleted) {
+      if (checkingStreak) {
+        streak++;
+      } else {
+        break;
+      }
+    } else {
+      checkingStreak = false;
+      if (streak > 0) {
+        break;
+      }
+      missedDays++;
+      if (missedDays > 3) {
+        break;
+      }
+    }
+    currentDate = subDays(currentDate, 1);
+  }
+
+  // Determine Streak State
+  let streakTitle = `${streak} Hari Berturut-turut 🔥`;
+  let streakSubtitle = "MasyaAllah, istiqomah terjaga";
+
+  if (streak === 0) {
+    if (missedDays === 1) {
+      streakTitle = "Streak terputus 😔";
+      streakSubtitle = "Kemarin terlewat, yuk mulai lagi hari ini";
+    } else if (missedDays >= 2) {
+      streakTitle = "Sudah beberapa hari terlewat";
+      streakSubtitle = "Tidak apa-apa, mulai perlahan lagi hari ini 💛";
+    } else {
+      // missedDays === 0 (Brand new user or just started today but not finished)
+      streakTitle = "Mulai Istiqomah 🔥";
+      streakSubtitle = "Yuk mulai dzikir pertamamu hari ini";
+    }
+  }
+
+  // Calculate Progress
+  const pagiItems = dzikirData.filter(d => d.type === 'pagi' || d.type === 'both');
+  const petangItems = dzikirData.filter(d => d.type === 'petang' || d.type === 'both');
+  const totalItems = pagiItems.length + petangItems.length;
+  
+  let completedItems = 0;
+  if (dailyProgress.date === todayStr) {
+    pagiItems.forEach(item => {
+      if ((dailyProgress.pagi[item.id] || 0) >= item.target) {
+        completedItems++;
+      }
+    });
+    petangItems.forEach(item => {
+      if ((dailyProgress.petang[item.id] || 0) >= item.target) {
+        completedItems++;
+      }
+    });
+  }
+  
+  const progressPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
   return (
     <div className="flex flex-col h-full">
@@ -32,23 +109,24 @@ export function Home() {
             <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
             <div className="flex items-start justify-between relative z-10">
               <div>
-                <p className="text-[#0A1F16] text-sm font-medium mb-1 opacity-80">Current Streak</p>
-                <div className="flex items-baseline gap-1">
-                  <h2 className="text-4xl font-normal text-[#0A1F16]">{currentStreak}</h2>
-                  <span className="text-lg text-[#0A1F16] font-medium">Days</span>
-                </div>
+                <p className="text-[#0A1F16] text-sm font-medium mb-1 opacity-80">Istiqomah Streak</p>
+                <h2 className="text-xl font-semibold text-[#0A1F16]">{streakTitle}</h2>
+                <p className="text-sm text-[#0A1F16]/80 mt-0.5">{streakSubtitle}</p>
               </div>
-              <div className="bg-[#0A1F16] text-[#D0E8D9] h-10 w-10 rounded-full flex items-center justify-center shadow-sm">
+              <div className="bg-[#0A1F16] text-[#D0E8D9] h-10 w-10 rounded-full flex items-center justify-center shadow-sm shrink-0 ml-2">
                 <Flame className="w-5 h-5 fill-current" />
               </div>
             </div>
             <div className="flex flex-col gap-1 relative z-10 mt-2">
               <div className="h-4 w-full bg-[#0A1F16]/10 rounded-full overflow-hidden">
-                <div className="h-full bg-[#006C4C] w-[70%] rounded-full"></div>
+                <div 
+                  className="h-full bg-[#006C4C] rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${progressPercentage}%` }}
+                ></div>
               </div>
               <div className="flex justify-between items-center text-xs text-[#0A1F16]/70 mt-1 font-medium">
-                <p>Last: {formattedLastCompleted}</p>
-                <p>70% Goal</p>
+                <p>Progress Hari Ini</p>
+                <p>{progressPercentage}% Goal</p>
               </div>
             </div>
           </div>

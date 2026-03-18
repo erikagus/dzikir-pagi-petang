@@ -64,39 +64,48 @@ export function DzikirDetail() {
     }
   };
 
+  // Calculate progress and rotation
+  const radius = 40;
+  const progressRatio = Math.min(currentProgress / currentItem.target, 1);
+  const rotationDegrees = progressRatio * 360;
+
   return (
-    <div className="relative flex flex-col h-screen max-w-md mx-auto overflow-hidden bg-[#F5FBF7]">
-      <div className="flex items-center px-4 py-3 bg-[#F5FBF7] sticky top-0 z-10">
+    <div className="relative flex flex-col h-screen max-w-md mx-auto overflow-hidden bg-white">
+      <div className="flex items-center px-4 py-4 bg-white/80 backdrop-blur-md sticky top-0 z-10">
         <button 
           onClick={() => navigate('/')}
-          className="flex w-12 h-12 items-center justify-center rounded-full hover:bg-black/5 active:bg-black/10 transition-colors"
+          className="flex w-12 h-12 items-center justify-center rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_15px_rgba(0,0,0,0.08)] transition-all border border-gray-50"
         >
-          <ArrowLeft className="w-6 h-6 text-[#171D1A]" />
+          <ArrowLeft className="w-5 h-5 text-gray-600" />
         </button>
-        <h2 className="text-[#171D1A] text-[22px] font-normal leading-7 flex-1 text-center truncate px-2">
+        <h2 className="text-gray-800 text-xl font-bold leading-7 flex-1 text-center truncate px-2 capitalize">
           Dzikir {type === 'pagi' ? 'Pagi' : 'Petang'}
         </h2>
-        <button className="flex w-12 h-12 items-center justify-center rounded-full hover:bg-black/5 active:bg-black/10 transition-colors">
-          <Info className="w-6 h-6 text-[#404944]" />
+        <button 
+          onClick={() => resetProgress(currentItem.id)}
+          className="flex w-12 h-12 items-center justify-center rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_15px_rgba(0,0,0,0.08)] transition-all border border-gray-50"
+        >
+          <RotateCcw className="w-5 h-5 text-gray-600" />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pt-2 space-y-6">
-        <div className="bg-[#DBE5DE]/30 rounded-2xl p-6 space-y-6">
-          <div className="flex justify-center">
-            <div className="inline-flex items-center justify-center px-4 py-1 rounded-full bg-[#CFE9D9] text-[#0A1F16]">
-              <span className="text-xs font-medium mr-2">Dibaca:</span>
+      <div className="flex-1 overflow-y-auto px-6 pt-4 pb-[240px] space-y-6">
+        <div className="bg-white border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] rounded-[2rem] p-8 space-y-8 relative overflow-hidden">
+          <div className="absolute -left-10 -top-10 w-40 h-40 bg-emerald-50/50 rounded-full blur-3xl"></div>
+          <div className="flex justify-center relative z-10">
+            <div className="inline-flex items-center justify-center px-5 py-2 rounded-xl bg-emerald-50 text-emerald-700 shadow-[0_2px_10px_rgba(16,185,129,0.1)]">
+              <span className="text-xs font-semibold mr-2 uppercase tracking-wider">Dibaca:</span>
               <span className="text-sm font-bold">{currentItem.target} kali</span>
             </div>
           </div>
-          <h3 className="font-arabic text-[#171D1A] text-2xl leading-[3.5rem] text-right font-bold tracking-wider" dir="rtl">
+          <h3 className="font-arabic text-gray-800 text-3xl leading-[4rem] text-right font-bold tracking-wider relative z-10" dir="rtl">
             {currentItem.arabic}
           </h3>
-          <div className="space-y-4">
-            <p className="text-[#006C4C] font-medium text-left text-sm italic leading-relaxed">
+          <div className="space-y-5 relative z-10">
+            <p className="text-emerald-600 font-semibold text-left text-sm italic leading-relaxed">
               {currentItem.transliteration}
             </p>
-            <p className="text-[#404944] text-xs leading-6 text-left tracking-wide">
+            <p className="text-gray-500 text-sm leading-relaxed text-left">
               {currentItem.translation}
             </p>
           </div>
@@ -104,81 +113,103 @@ export function DzikirDetail() {
       </div>
 
       {/* Fixed Bottom Block */}
-      <div className="sticky bottom-0 left-0 right-0 p-4 bg-[#F5FBF7] border-t border-gray-200 rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-        <div className="flex items-center justify-center gap-8 mb-6">
-          <button 
-            onClick={() => resetProgress(currentItem.id)}
-            className="w-12 h-12 rounded-full bg-[#E8F5EE] text-[#006C4C] flex items-center justify-center hover:bg-[#CFE9D9] transition-colors"
-          >
-            <RotateCcw className="w-5 h-5" />
-          </button>
-
-          <div className="relative w-28 h-28 flex items-center justify-center">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+      <div className="absolute bottom-0 left-0 right-0 p-6 bg-white/90 backdrop-blur-xl border-t border-gray-100 rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.03)] z-20">
+        <div className="flex items-center justify-center mb-8 -mt-16">
+          <div className="relative w-36 h-36 flex items-center justify-center">
+            {/* Background Circle with Shading */}
+            <div className="absolute inset-0 rounded-full bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-gray-50"></div>
+            
+            {/* Progress Arc */}
+            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+              {/* Track */}
               <circle
-                className="text-gray-200"
+                className="text-gray-100"
                 strokeWidth="8"
                 stroke="currentColor"
                 fill="transparent"
-                r="40"
+                r={radius}
                 cx="50"
                 cy="50"
               />
+              {/* Progress */}
               <circle
-                className="text-[#006C4C]"
+                className="text-emerald-500"
                 strokeWidth="8"
-                strokeDasharray={2 * Math.PI * 40}
-                strokeDashoffset={2 * Math.PI * 40 * (1 - Math.min(currentProgress / currentItem.target, 1))}
+                strokeDasharray={2 * Math.PI * radius}
+                strokeDashoffset={2 * Math.PI * radius * (1 - progressRatio)}
                 strokeLinecap="round"
                 stroke="currentColor"
                 fill="transparent"
-                r="40"
+                r={radius}
                 cx="50"
                 cy="50"
+                style={{ 
+                  transition: 'stroke-dashoffset 0.5s ease-in-out',
+                  transformOrigin: '50px 50px',
+                  transform: 'rotate(-90deg)'
+                }}
               />
+              {/* Handle/Knob Container */}
+              <g
+                style={{
+                  transformOrigin: '50px 50px',
+                  transform: `rotate(${rotationDegrees}deg)`,
+                  transition: 'transform 0.5s ease-in-out'
+                }}
+              >
+                {/* Knob positioned at 12 o'clock (cy = 50 - radius = 10) */}
+                <circle
+                  className="fill-white stroke-emerald-500"
+                  strokeWidth="3"
+                  r="6"
+                  cx="50"
+                  cy="10"
+                  style={{
+                    filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.15))'
+                  }}
+                />
+              </g>
             </svg>
+
+            {/* Center Content */}
             <button 
               onClick={handleTap}
               disabled={isTargetReached}
-              className="absolute inset-0 flex flex-col items-center justify-center"
+              className="relative z-10 flex flex-col items-center justify-center w-[116px] h-[116px] rounded-full bg-white shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] active:scale-95 transition-transform border border-gray-50"
             >
-              <span className="text-[10px] font-bold text-[#404944]">TAP</span>
+              <span className="text-4xl font-bold text-gray-800 tracking-tight">{currentProgress}</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">DARI {currentItem.target}</span>
+              <span className="text-[9px] font-bold text-emerald-500 uppercase mt-2 tracking-wider">TAP DI SINI</span>
             </button>
-          </div>
-
-          <div className="w-12 h-12 rounded-full bg-[#CFE9D9] text-[#0A1F16] flex items-center justify-center font-bold text-lg">
-            {currentProgress}
           </div>
         </div>
         
-        <div className="flex items-center justify-between px-4">
+        <div className="flex items-center justify-between px-2">
           <button 
             onClick={handlePrev}
             disabled={currentSession.currentIndex === 0}
             className={clsx(
-              "w-12 h-12 rounded-full flex items-center justify-center transition-colors",
+              "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300",
               currentSession.currentIndex === 0
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : "bg-[#E8F5EE] text-[#0A1F16] hover:bg-[#E8F5EE]/80 active:bg-[#E8F5EE]/70"
+                ? "bg-gray-50 text-gray-300 cursor-not-allowed"
+                : "bg-white border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.04)] text-gray-600 hover:shadow-[0_4px_15px_rgba(0,0,0,0.08)] active:scale-95"
             )}
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
 
-          <span className="text-sm font-medium text-[#404944]">
+          <span className="text-sm font-bold text-gray-500 tracking-widest">
             {currentSession.currentIndex + 1} / {filteredDzikir.length}
           </span>
 
           <button 
             onClick={handleNext}
-            className="w-12 h-12 rounded-full flex items-center justify-center transition-colors bg-[#CFE9D9] text-[#0A1F16] hover:bg-[#CFE9D9]/80 active:bg-[#CFE9D9]/70"
+            className="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 bg-emerald-500 text-white shadow-[0_4px_15px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] active:scale-95"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
         </div>
       </div>
-
-      {/* Bottom Sheet Modal */}
     </div>
   );
 }

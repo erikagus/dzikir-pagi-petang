@@ -12,6 +12,7 @@ export interface HistoryEntry {
 }
 
 interface AppState {
+  theme: 'light' | 'dark';
   currentStreak: number;
   totalDzikir: number;
   history: HistoryEntry[];
@@ -31,6 +32,7 @@ interface AppState {
     petang: Record<string, number>;
   };
 
+  toggleTheme: () => void;
   startSession: (type: DzikirType) => void;
   incrementProgress: (id: string, target: number) => void;
   resetProgress: (id: string) => void;
@@ -51,6 +53,7 @@ const getTodayString = () => format(new Date(), 'yyyy-MM-dd');
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
+      theme: 'dark',
       currentStreak: 0,
       totalDzikir: 0,
       history: [],
@@ -68,6 +71,8 @@ export const useStore = create<AppState>()(
         pagi: {},
         petang: {},
       },
+
+      toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
 
       startSession: (type) => set((state) => {
         const todayStr = getTodayString();
